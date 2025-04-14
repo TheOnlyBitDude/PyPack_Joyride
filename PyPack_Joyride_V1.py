@@ -123,52 +123,6 @@ class Barry(GameSprite):
                 self.rect.y = 41
 
 
-class Explosion(GameSprite):
-    def __init__(self, filename, x, y, w, h):
-        super().__init__(filename, x, y, w, h)
-        self.frame = 0
-        self.w = w
-        self.h = h
-
-    def explode(self):
-        if self.frame == 0:
-            explode.play()
-        self.frame += 1
-        if 0 <= self.frame <= 4:
-            self.image = transform.scale(image.load("img/gif/2a9n-8.png"), (self.w, self.h))
-        elif 5 <= self.frame <= 9:
-            self.image = transform.scale(image.load("img/gif/2a9n-9.png"), (self.w, self.h))
-        elif 10 <= self.frame <= 14:
-            self.image = transform.scale(image.load("img/gif/2a9n-10.png"), (self.w, self.h))
-        elif 15 <= self.frame <= 9:
-            self.image = transform.scale(image.load("img/gif/2a9n-11.png"), (self.w, self.h))
-        elif 20 <= self.frame <= 24:
-            self.image = transform.scale(image.load("img/gif/2a9n-12.png"), (self.w, self.h))
-        elif 25 <= self.frame <= 29:
-            self.image = transform.scale(image.load("img/gif/2a9n-13.png"), (self.w, self.h))
-        elif 30 <= self.frame <= 34:
-            self.image = transform.scale(image.load("img/gif/2a9n-14.png"), (self.w, self.h))
-        elif 35 <= self.frame <= 39:
-            self.image = transform.scale(image.load("img/gif/2a9n-15.png"), (self.w, self.h))
-        elif 40 <= self.frame <= 44:
-            self.image = transform.scale(image.load("img/gif/2a9n-16.png"), (self.w, self.h))
-        elif 45 <= self.frame <= 49:
-            self.image = transform.scale(image.load("img/gif/17.png"), (self.w, self.h))
-        elif 50 <= self.frame <= 54:
-            self.image = transform.scale(image.load("img/gif/18.png"), (self.w, self.h))
-        elif 55 <= self.frame <= 59:
-            self.image = transform.scale(image.load("img/gif/19.png"), (self.w, self.h))
-        elif 60 <= self.frame <= 64:
-            self.image = transform.scale(image.load("img/gif/20.png"), (self.w, self.h))
-        elif 65 <= self.frame <= 70:
-            self.image = transform.scale(image.load("img/gif/21.png"), (self.w, self.h))
-
-        transform.scale(self.image, (self.w, self.h))
-
-        if self.frame == 70:
-            self.rect.x = 100000
-
-
 class BG(GameSprite):
 
     def __init__(self, filename, x, y, w, h):
@@ -207,7 +161,6 @@ class Missile(GameSprite):
     def warning(self):
         if not self.launched:
             self.pos = randint(20, 714)
-            warning.play()
             self.l = 0
             self.rect.y = self.pos
         self.launch()
@@ -232,7 +185,7 @@ class Missile(GameSprite):
                 self.l = 1
 
             if self.f != 1:
-                launch.play()
+
                 self.f = 1
 
             self.rect.y = self.pos
@@ -270,7 +223,6 @@ class MissileTracer(GameSprite):
     def warning(self):
         if not self.launched:
             self.rect.y = barry.rect.y
-            warning.play()
             self.l = 0
         self.launch()
 
@@ -294,7 +246,6 @@ class MissileTracer(GameSprite):
                 self.l = 1
 
             if self.f != 1:
-                launch.play()
                 self.f = 1
 
             self.animate()
@@ -309,9 +260,8 @@ class Bullets(GameSprite):
         self.x = True
 
     def shoot(self):
-        j = randint(-15, 10)
         if self.x:
-            self.rect.x = barry.rect.x + 23.5 + j
+            self.rect.x = barry.rect.x + 24 + randint(-15, 10)
             self.x = False
         else:
             self.rect.x -= 3
@@ -503,11 +453,7 @@ screen.blit(loading, (430, 0))
 screen.blit(tmtaw, (475, 720))
 update_()
 
-text("snd/Warning.mp3", 525, 360)
-sleep(0.15)
-warning = mixer.Sound("snd/Warning.mp3")
-text("snd/Launch.mp3", 525, 360)
-launch = mixer.Sound("snd/Launch.mp3")
+
 text("data/", 525, 360)
 
 basepath = os.getcwd()
@@ -533,10 +479,6 @@ for file in os.listdir(basepath + "/data"):
             koin = True
 
 
-text("snd/Theme.mp3", 525, 360)
-theme = mixer.Sound("snd/Theme.mp3")
-text("snd/Explode.mp3", 525, 360)
-explode = mixer.Sound('snd/Explode.mp3')
 text("snd/Elektrik.wav", 525, 360)
 Elektric = mixer.Sound("snd/Elektrik.wav")
 Game = True
@@ -607,9 +549,6 @@ bg_rvrs = BG("img/bg_rvrs.jpg", 2740, 0, 2740, 1000)
 
 bgs = [bg, bg_rvrs]
 
-text("img/[explosions].png", 525, 360)
-explosion = Explosion("img/gif/2a9n-8.png", 0, 0, 1000, 1000)
-
 missiles = [missile, missile2, missile3]
 
 text("img/bullet.png", 525, 360)
@@ -632,12 +571,6 @@ deth50 = achievement("img/50.bmp", -400, 0, 400, 269)
 text("img/koin.bmp", 525, 360)
 pepo_koin = achievement("img/koin.bmp", -400, 0, 400, 269)
 
-warning.set_volume(0.1)
-launch.set_volume(0.1)
-theme.set_volume(0.1)
-explode.set_volume(0.1)
-Elektric.set_volume(0.1)
-
 while Game:
     for e in event.get():
         if e.type == QUIT:
@@ -656,10 +589,6 @@ while Game:
         elif e.type == KEYDOWN and e.key == K_ESCAPE:
             stage = "pause"
         elif stage == "pause" and e.type == MOUSEBUTTONDOWN and e.button == 1:
-            warning.set_volume(0.5)
-            launch.set_volume(0.5)
-            theme.set_volume(0.5)
-            explode.set_volume(0.5)
             Elektric.set_volume(0.5)
             stage = "run"
         elif e.type == KEYDOWN and e.key == K_r:
@@ -667,7 +596,6 @@ while Game:
 
     if stage == "run":
         if m == 0:
-            theme.play()
             m = 1
         screen.fill((100, 100, 100))
         if bg.rect.x == -2740:
@@ -740,7 +668,6 @@ while Game:
                 missile.reset()
                 if not powerup and sprite.collide_rect(barry, missile):
                     stage = "lost"
-                    explode.play()
                     times += 1
                     det_cnt += 1
                 if powerup and sprite.collide_rect(barry, missile):
@@ -761,150 +688,69 @@ while Game:
                     Elektrik_list.remove(elektrik)
                     reset(barry.rect.x, barry.rect.y)
 
-        if diff == "normal":
-            if lnch == 70 or lnch == 80 or lnch == 90:
-                elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68)
-                elektrik.l = 0
-                Elektrik_list.append(elektrik)
+        if lnch == 70 or lnch == 80 or lnch == 90:
+            elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68)
+            elektrik.l = 0
+            Elektrik_list.append(elektrik)
 
-            elif lnch == 10 or lnch == 20 or lnch == 30:
-                elektrik = Elektrik("img/elektrik_vert.png", 1376, 0, 68, 282)
-                elektrik.l = 0
-                Elektrik_list.append(elektrik)
+        elif lnch == 10 or lnch == 20 or lnch == 30:
+            elektrik = Elektrik("img/elektrik_vert.png", 1376, 0, 68, 282)
+            elektrik.l = 0
+            Elektrik_list.append(elektrik)
 
-            elif lnch == 35 or lnch == 45 or lnch == 55:
-                for missile in missiles:
-                    missile.l = 0
-        else:
-            if lnch == 70:
-                elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68)
-                elektrik.l = 0
-                Elektrik_list.append(elektrik)
-
-            elif lnch == 10:
-                elektrik = Elektrik("img/elektrik_vert.png", 1376, 0, 68, 282)
-                elektrik.l = 0
-                Elektrik_list.append(elektrik)
-
-            elif lnch == 35:
-                for missile in missiles:
-                    missile.l = 0
+        elif lnch == 35 or lnch == 45 or lnch == 55:
+            for missile in missiles:
+                missile.l = 0
 
         for bullet in bullets:
             if sprite.collide_rect(bullet, floor):
                 bullets.remove(bullet)
 
-        explosion.reset()
-        explosion.explode()
-
 
     elif stage == "lost":
-        while times == 10 or times == 11 or times == 12:
-            screen.fill((25, 25, 25))
-            pepo.reset()
-            screen.blit(help, (500, 0))
-            screen.blit(lhelp, (500, 150))
-            screen.blit(ihelp, (290, 300))
-            for e in event.get():
-                if e.type == QUIT:
-                    exit()
-                if e.type == KEYDOWN and e.key == K_h:
-                    diff = "less"
-                    times = 14
-                elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    times = 13
+        for e in event.get():
+            if e.type == QUIT:
+                exit()
 
-            if deth10.o == 1:
-                deth10.reset()
-                deth10.show()
+        if deth10.o == 1:
+            deth10.reset()
+            deth10.show()
 
-            if pepo_koin.o == 1:
-                pepo_koin.reset()
-                pepo_koin.show()
-            update_()
+        if pepo_koin.o == 1:
+            pepo_koin.reset()
+            pepo_koin.show()
+        update_()
 
-        while times == 13:
-            screen.fill((25, 25, 25))
-            pepo_shock.reset()
-            screen.blit(usure, (280, 0))
-            screen.blit(usure2, (475, 200))
-            screen.blit(usure3, (400, 400))
-            for e in event.get():
-                if e.type == QUIT:
-                    exit()
 
-                elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    reset(20, 675)
-                    times = 14
-                elif e.type == KEYDOWN and e.key == K_h:
-                    diff = "less"
-                    times = 14
+        if deth10.o == 1:
+            deth10.reset()
+            deth10.show()
 
-            if deth10.o == 1:
-                deth10.reset()
-                deth10.show()
+        if pepo_koin.o == 1:
+            pepo_koin.reset()
+            pepo_koin.show()
+        update_()
 
-            if pepo_koin.o == 1:
-                pepo_koin.reset()
-                pepo_koin.show()
-            update_()
 
-        while times == 50 or times == 51 or times == 52 or times == 53:
-            screen.fill((0, 0, 0))
-            pepo_cry.reset()
-            screen.blit(ez, (550, 0))
-            screen.blit(click, (455, 720))
-            for e in event.get():
-                if e.type == QUIT:
-                    exit()
+        if deth50.o == 1:
+            deth50.reset()
+            deth50.show()
 
-                elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    reset(20, 675)
-                    times = 54
+        if pepo_koin.o == 1:
+            pepo_koin.reset()
+            pepo_koin.show()
+        update_()
 
-            if deth50.o == 1:
-                deth50.reset()
-                deth50.show()
 
-            if pepo_koin.o == 1:
-                pepo_koin.reset()
-                pepo_koin.show()
-            update_()
-        while times == 54:
-            screen.fill((25, 25, 25))
-            pepo_disappointed.reset()
-            screen.blit(ig, (250, 0))
-            screen.blit(click, (455, 720))
-            for e in event.get():
-                if e.type == QUIT:
-                    exit()
-
-                elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    reset(20, 675)
-                    times = 55
-                    ez_koin = True
-
-            if deth50.o == 1:
-                deth50.reset()
-                deth50.show()
-
-            if pepo_koin.o == 1:
-                pepo_koin.reset()
-                pepo_koin.show()
-            update_()
-        else:
-            screen.fill((100, 0, 0))
-            screen.blit(lost, (440, 330))
+        screen.fill((100, 0, 0))
+        screen.blit(lost, (440, 330))
+        update_()
 
     elif stage == "pause":
         screen.fill((0, 0, 0))
         screen.blit(pause, (425, 330))
         screen.blit(click, (455, 720))
-        warning.set_volume(0)
-        launch.set_volume(0)
-        theme.set_volume(0)
-        explode.set_volume(0)
-        Elektric.set_volume(0)
+
         for e in event.get():
             if e.type == QUIT:
                 exit()
