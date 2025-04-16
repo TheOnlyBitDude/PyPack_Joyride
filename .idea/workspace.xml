@@ -4,7 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fbdf0043-f787-4c18-8552-50bc8119119d" name="Changes" comment="Updated PyPack_Joyride.&#10;Added Sound and Missiles.&#10;Added Temp lost screen.&#10;Added Temp hitbox outline.&#10;Added main theme." />
+    <list default="true" id="fbdf0043-f787-4c18-8552-50bc8119119d" name="Changes" comment="Updated PyPack_Joyride.&#10;Added Sound and Missiles.&#10;Added Temp lost screen.&#10;Added Temp hitbox outline.&#10;Added main theme.">
+      <change beforePath="$PROJECT_DIR$/img/disappointed_pepo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/17.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/19.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/21.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-11.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-12.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-13.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/2a9n-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/gif/PEEEEEEEEEEEEEEEEEEEEPOOOOOOOOOOOOOOOOOOOO.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/koin.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/pepo_cry.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img/pepo_shock.png" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,15 +66,16 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.PyPack_Joyride_V1 (1).executor": "Run",
     "Python.PyPack_Joyride_V1.executor": "Run",
     "Python.main.executor": "Run",
     "Python.test.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "<unknown>",
+    "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "/home/arch/Documents/arch",
+    "last_opened_file_path": "/Users/mari/PycharmProjects/PyPack_Joyride",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -68,7 +89,29 @@
       <recent name="C:\Users\Marianochka\PycharmProjects\git\PyPack_Joyride\img" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.PyPack_Joyride_V1 (1)">
+    <configuration name="PyPack_Joyride_V1 (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PyPack_Joyride" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PyPack_Joyride_V1.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="PyPack_Joyride_V1" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="PyPack_Joyride" />
       <option name="ENV_FILES" value="" />
@@ -91,6 +134,11 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.PyPack_Joyride_V1 (1)" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
