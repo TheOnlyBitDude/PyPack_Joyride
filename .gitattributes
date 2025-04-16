@@ -3,3 +3,4 @@
 =======
 *.mp3 filter=lfs diff=lfs merge=lfs -text
 >>>>>>> 61bd7156046f78aa5f3fc762a0c3d1a804416f61
+*.wav filter=lfs diff=lfs merge=lfs -text
