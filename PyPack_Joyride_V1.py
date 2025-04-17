@@ -19,12 +19,14 @@ try:
     screen_width = 2450
     screen_height = 768
 
+    fps = 60
+
     screen = display.set_mode((screen_width, screen_height))
     display.set_caption("PyPack Joyride")
     mixer.set_num_channels(300000)
 
 
-    def update_(fps):
+    def update_():
         for e in event.get():
             if e.type == QUIT:
                 exit()
@@ -108,6 +110,10 @@ try:
                 self.fall += 0.75
                 if sprite.collide_rect(self, floor):
                     self.fall = 4
+                if not jetpack_channel.get_busy():
+                    jetpack_channel.play(jetpack_fire, loops=-1)
+            else:
+                jetpack_channel.stop()
 
             if self.fall >= 10:
                 self.fall = 10
@@ -361,7 +367,7 @@ try:
         screen.blit(tmtaw, (475, 720))
         text_surface = MS_DOS_smol.render(txt, True, (255, 255, 255))
         screen.blit(text_surface, (x, y))
-        update_(60)
+        update_()
 
     class Explode(GameSprite):
         def __init__(self, filename, x, y, w, h):
@@ -393,7 +399,7 @@ try:
 
             self.counter += 1
             screen.blit(self.image, (0, 0))
-            update_(60)
+            update_()
             if self.counter >= 10:
                 self.counter = 0
 
@@ -455,7 +461,7 @@ try:
         screen.blit(github, (405, 0))
         screen.blit(fact_res, (350, 350))
         screen.blit(click, (455, 720))
-        update_(60)
+        update_()
 
     fact = MS_DOS.render("FACTORY RESET COMPLETED.", True, (0, 255, 255))
     notfact = MS_DOS.render("FACTORY RESET FAILED.", True, (200, 0, 0))
@@ -463,13 +469,13 @@ try:
     if fac:
         screen.fill((0, 0, 0))
         screen.blit(fact, (40, 350))
-        update_(60)
+        update_()
         sleep(3)
         fac = False
     elif notfac:
         screen.fill((0, 0, 0))
         screen.blit(notfact, (150, 350))
-        update_(60)
+        update_()
         sleep(3)
         notfac = False
 
@@ -491,7 +497,7 @@ try:
     screen.fill((0, 0, 0))
     screen.blit(loading, (430, 0))
     screen.blit(tmtaw, (475, 720))
-    update_(60)
+    update_()
 
 
     text("data/", 525, 360)
@@ -521,7 +527,6 @@ try:
 
     text("snd/Elektrik.wav", 525, 360)
     Elektric = mixer.Sound("snd/Elektrik.wav")
-    Elektric.set_volume(0.75)
     text("snd/Explode.wav", 525, 360)
     explode = mixer.Sound("snd/Explode.wav")
     explode.set_volume(0.85)
@@ -532,14 +537,12 @@ try:
     smash = mixer.Sound("snd/smash.wav")
     text("snd/Theme.wav", 525, 360)
     Theme = mixer.Sound("snd/Theme.wav")
-    Theme.set_volume(1.25)
     channel = mixer.Channel(299999)
     text("snd/Warning.wav", 525, 360)
     warning = mixer.Sound("snd/Warning.wav")
-    warning.set_volume(0.75)
     text("snd/jetpack_fire", 525, 360)
     jetpack_fire = mixer.Sound("snd/jetpack_fire.wav")
-    jetpack_fire.set_volume(120)
+    jetpack_channel = mixer.Channel(10)
     Game = True
     m = 0
     a = 0
@@ -619,26 +622,13 @@ try:
         for e in event.get():
             if e.type == QUIT:
                 exit()
-            elif stage == "lost" and e.type == KEYDOWN and e.key == K_SPACE:
-                sleep(0.45)
+            elif stage == "lost" and e.type == MOUSEBUTTONDOWN and e.button == 1:
                 reset(20, 675)
                 stage = "run"
-            elif e.type == KEYDOWN and e.key == K_o:
-                times = 9
-                det_cnt = 9
-            elif e.type == KEYDOWN and e.key == K_5:
-                times = 49
-                det_cnt = 49
             elif e.type == KEYDOWN and e.key == K_p:
                 powerup = True
-            elif e.type == KEYDOWN and e.key == K_ESCAPE:
-                stage = "pause"
             elif e.type == KEYDOWN and e.key == K_r:
                 booster.l = 1
-            elif e.type == KEYDOWN and e.key == K_SPACE:
-                jetpack_fire.play()
-            elif e.type == KEYUP and e.key == K_SPACE:
-                jetpack_fire.stop()
             elif e.type == KEYDOWN and e.key == K_e:
                 koin_got = True
                 reset(barry.rect.x, barry.rect.y)
@@ -708,8 +698,9 @@ try:
 
             lnch = randint(1, 225)
             for missile in missiles:
-                missile.warning()
-                missile.reset()
+                if missile.launched == 0:
+                    missile.warning()
+                    missile.reset()
                 if not powerup and sprite.collide_rect(barry, missile):
                     stage = "lost"
                     explode.play()
@@ -748,20 +739,20 @@ try:
                 Elektrik_list.append(elektrik)
 
             elif lnch == 126 or lnch == 173 or lnch == 111:
-                missile.l = 0
+                missile.launched = 0
 
             elif lnch == 222 or lnch == 109 or lnch == 63:
-                missile2.l = 0
+                missile2.launched = 0
 
             elif lnch == 35 or lnch == 17 or lnch == 39:
-                missile3.l = 0
+                missile3.launched = 0
 
             elif lnch == 1 or lnch == 44 or lnch == 22:
-                missile4.l = 0
+                missile4.launched = 0
 
             elif lnch == 1:
                 for missile in missiles:
-                    missile.l = 0
+                    missile.launched = 0
 
             for bullet in bullets:
                 if sprite.collide_rect(bullet, floor):
@@ -775,11 +766,11 @@ try:
                     exit()
 
 
-            screen.fill((100, 0, 0))
-            screen.blit(lost, (440, 330))
-            update_(60)
+            #screen.fill((100, 0, 0))
+            #screen.blit(lost, (440, 330))
+            update_()
 
-        update_(60)
+        update_()
 
 except:
     raise
