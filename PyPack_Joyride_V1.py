@@ -22,7 +22,7 @@ try:
 
     screen = display.set_mode((screen_width, screen_height))
     display.set_caption("PyPack Joyride")
-    mixer.set_num_channels(30000)
+    mixer.set_num_channels(300000)
 
 
     def update_():
@@ -488,6 +488,7 @@ try:
     text("snd/Theme.wav", 525, 360)
     Theme = mixer.Sound("snd/Theme.wav")
     Theme.set_volume(1.25)
+    channel = mixer.Channel(299999)
     text("snd/Warning.wav", 525, 360)
     warning = mixer.Sound("snd/Warning.wav")
     warning.set_volume(0.75)
@@ -562,9 +563,12 @@ try:
     except IndexError:
         pass
 
-    Theme.play()
-
     while Game:
+        if channel.get_busy():
+            pass
+        else:
+            channel.play(Theme)
+
         for e in event.get():
             if e.type == QUIT:
                 exit()
