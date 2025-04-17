@@ -15,7 +15,6 @@ try:
     font.init()
 
     clock = time.Clock()
-    fps = 60
 
     screen_width = 2450
     screen_height = 768
@@ -25,7 +24,10 @@ try:
     mixer.set_num_channels(300000)
 
 
-    def update_():
+    def update_(fps):
+        for e in event.get():
+            if e.type == QUIT:
+                exit()
         clock.tick(fps)
         display.update()
 
@@ -113,7 +115,7 @@ try:
                 self.fall = -20
 
             if sprite.collide_rect(self, roof):
-                self.rect.y = 41
+                self.rect.y = 0
                 self.fall = 0
 
             if not keys[K_SPACE]:
@@ -126,7 +128,7 @@ try:
                 elif not sprite.collide_rect(self, floor):
                     self.kind = "fall"
                 if sprite.collide_rect(self, roof):
-                    self.rect.y = 41
+                    self.rect.y = 1
 
 
     class BG(GameSprite):
@@ -142,10 +144,10 @@ try:
 
         def __init__(self, filename, x, y, w, h):
             super().__init__(filename, x, y, w, h)
-            self.speed = 26
+            self.speed = 50
             self.counter = 0
+            self.pre_launch = None
             self.launched = None
-            self.l = None
             self.f = None
             self.wait = None
 
@@ -165,19 +167,19 @@ try:
                 self.counter = 0
 
         def warning(self):
-            if not self.launched:
+            if not self.pre_launch:
                 warning.play()
                 self.pos = randint(20, 714)
-                self.l = 0
+                self.launched = 0
                 self.rect.y = self.pos
             self.launch()
 
         def launch(self):
 
-            if not self.launched:
+            if not self.pre_launch:
                 self.i = 0
                 self.rect.x = 2424
-                self.launched = True
+                self.pre_launch = True
                 self.wait = 0
                 self.f = 0
 
@@ -191,8 +193,8 @@ try:
                 else:
                     self.i = 0
                     self.wait = 0
-                    self.launched = False
-                    self.l = 1
+                    self.pre_launch = False
+                    self.launched = 1
 
                 if self.f != 1:
 
@@ -208,10 +210,10 @@ try:
 
         def __init__(self, filename, x, y, w, h):
             super().__init__(filename, x, y, w, h)
-            self.speed = 26
+            self.speed = 50
             self.counter = 0
+            self.pre_launch = None
             self.launched = None
-            self.l = None
             self.f = None
             self.wait = None
 
@@ -231,18 +233,18 @@ try:
                 self.counter = 0
 
         def warning(self):
-            if not self.launched:
+            if not self.pre_launch:
                 warning.play()
                 self.rect.y = barry.rect.y
-                self.l = 0
+                self.launched = 0
             self.launch()
 
         def launch(self):
 
-            if not self.launched:
+            if not self.pre_launch:
                 self.i = 0
                 self.rect.x = 2424
-                self.launched = True
+                self.pre_launch = True
                 self.wait = 0
                 self.f = 0
 
@@ -253,8 +255,8 @@ try:
                 else:
                     self.i = 0
                     self.wait = 0
-                    self.launched = False
-                    self.l = 1
+                    self.pre_launch = False
+                    self.launched = 1
 
                 if self.f != 1:
                     self.f = 1
@@ -317,7 +319,10 @@ try:
                 self.rect.x = screen_width
 
 
+    loop = 0
+    koin_got = False
     def reset(x, y):
+        global loop, koin_got
         barry.rect.x = x
         barry.rect.y = y
         barry.fall = 0
@@ -326,8 +331,8 @@ try:
         bullet.rect.y = 1001
 
         for missile in missiles:
-            missile.l = 1
-            missile.launched = False
+            missile.launched = 1
+            missile.pre_launch = False
             missile.f = 1
             missile.i = 0
             missile.wait = 0
@@ -337,6 +342,12 @@ try:
             electric.l = 1
             electric.rect.x = 2484
         Elektrik_list.clear()
+        if koin_got:
+            for _ in range(10):
+                expl.explode()
+            loop = 0
+            koin_got = False
+
 
 
     # load essential files
@@ -350,7 +361,41 @@ try:
         screen.blit(tmtaw, (475, 720))
         text_surface = MS_DOS_smol.render(txt, True, (255, 255, 255))
         screen.blit(text_surface, (x, y))
-        update_()
+        update_(60)
+
+    class Explode(GameSprite):
+        def __init__(self, filename, x, y, w, h):
+
+            super().__init__(filename, x, y, w, h)
+            self.counter = 0
+
+        def explode(self):
+            if 0 <= self.counter < 1:
+                self.image = transform.scale(image.load('img/Explosions/Explosion1.png'), (self.w, self.h))
+            elif 1 <= self.counter < 2:
+                self.image = transform.scale(image.load('img/Explosions/Explosion2.png'), (self.w, self.h))
+            elif 2 <= self.counter < 3:
+                self.image = transform.scale(image.load('img/Explosions/Explosion3.png'), (self.w, self.h))
+            elif 3 <= self.counter < 4:
+                self.image = transform.scale(image.load('img/Explosions/Explosion4.png'), (self.w, self.h))
+            elif 4 <= self.counter < 5:
+                self.image = transform.scale(image.load('img/Explosions/Explosion5.png'), (self.w, self.h))
+            elif 5 <= self.counter < 6:
+                self.image = transform.scale(image.load('img/Explosions/Explosion6.png'), (self.w, self.h))
+            elif 6 <= self.counter < 7:
+                self.image = transform.scale(image.load('img/Explosions/Explosion7.png'), (self.w, self.h))
+            elif 7 <= self.counter < 8:
+                self.image = transform.scale(image.load('img/Explosions/Explosion8.png'), (self.w, self.h))
+            elif 8 <= self.counter < 9:
+                self.image = transform.scale(image.load('img/Explosions/Explosion9.png'), (self.w, self.h))
+            elif 9 <= self.counter < 10:
+                self.image = transform.scale(image.load('img/Explosions/Explosion10.png'), (self.w, self.h))
+
+            self.counter += 1
+            screen.blit(self.image, (0, 0))
+            update_(60)
+            if self.counter >= 10:
+                self.counter = 0
 
 
     lost = MS_DOS.render("YOU LOST.", True, (0, 0, 0), None)
@@ -375,7 +420,7 @@ try:
         screen.blit(recreation, (335, 250))
         screen.blit(halfbrick, (345, 515))
         screen.blit(click, (455, 720))
-        clock.tick(fps)
+        clock.tick(60)
         display.update()
 
     github = MS_DOS_smol.render('Press "G" to redirect to the repository.', True, (255, 255, 255))
@@ -410,7 +455,7 @@ try:
         screen.blit(github, (405, 0))
         screen.blit(fact_res, (350, 350))
         screen.blit(click, (455, 720))
-        update_()
+        update_(60)
 
     fact = MS_DOS.render("FACTORY RESET COMPLETED.", True, (0, 255, 255))
     notfact = MS_DOS.render("FACTORY RESET FAILED.", True, (200, 0, 0))
@@ -418,13 +463,13 @@ try:
     if fac:
         screen.fill((0, 0, 0))
         screen.blit(fact, (40, 350))
-        update_()
+        update_(60)
         sleep(3)
         fac = False
     elif notfac:
         screen.fill((0, 0, 0))
         screen.blit(notfact, (150, 350))
-        update_()
+        update_(60)
         sleep(3)
         notfac = False
 
@@ -446,7 +491,7 @@ try:
     screen.fill((0, 0, 0))
     screen.blit(loading, (430, 0))
     screen.blit(tmtaw, (475, 720))
-    update_()
+    update_(60)
 
 
     text("data/", 525, 360)
@@ -478,8 +523,8 @@ try:
     Elektric = mixer.Sound("snd/Elektrik.wav")
     Elektric.set_volume(0.75)
     text("snd/Explode.wav", 525, 360)
-    Explode = mixer.Sound("snd/Explode.wav")
-    Explode.set_volume(0.85)
+    explode = mixer.Sound("snd/Explode.wav")
+    explode.set_volume(0.85)
     text("snd/Launch.wav", 525, 360)
     Launch = mixer.Sound("snd/Launch.wav")
     Launch.set_volume(0.75)
@@ -494,7 +539,7 @@ try:
     warning.set_volume(0.75)
     text("snd/jetpack_fire", 525, 360)
     jetpack_fire = mixer.Sound("snd/jetpack_fire.wav")
-    jetpack_fire.set_volume(0.90)
+    jetpack_fire.set_volume(120)
     Game = True
     m = 0
     a = 0
@@ -521,7 +566,7 @@ try:
     text("img/Floor.png", 525, 360)
     floor = GameSprite("img/floor.png", 0, 718, screen_width, 50)
     text("img/Roof.png", 525, 360)
-    roof = GameSprite("img/roof.png", 0, 0, screen_width, 40)
+    roof = GameSprite("img/roof.png", 0, -40, screen_width, 40)
     text("img/Missile_Target.png", 525, 360)
     missile = MissileTracer(target, 0, 0, 93, 34)
     text("img/Rocket1.png", 525, 360)
@@ -551,6 +596,8 @@ try:
     times = 0
     stage = "run"
     diff = "normal"
+
+    expl = Explode("img/Explosions/Explosion1.png", 0, 0, 2400, 768)
 
     sounds = [Elektric, Explode, jetpack_fire, Launch, smash, Theme, warning]
 
@@ -592,6 +639,9 @@ try:
                 jetpack_fire.play()
             elif e.type == KEYUP and e.key == K_SPACE:
                 jetpack_fire.stop()
+            elif e.type == KEYDOWN and e.key == K_e:
+                koin_got = True
+                reset(barry.rect.x, barry.rect.y)
 
         if stage == "run":
             if m == 0:
@@ -657,18 +707,18 @@ try:
                 booster.l = 1
 
             lnch = randint(1, 225)
-            if missile.l == 0:
-                for missile in missiles:
-                    missile.warning()
-                    missile.reset()
-                    if not powerup and sprite.collide_rect(barry, missile):
-                        stage = "lost"
-                        Explode.play()
-                        times += 1
-                        det_cnt += 1
-                    if powerup and sprite.collide_rect(barry, missile):
-                        powerup = False
-                        reset(barry.rect.x, barry.rect.y)
+            for missile in missiles:
+                missile.warning()
+                missile.reset()
+                if not powerup and sprite.collide_rect(barry, missile):
+                    stage = "lost"
+                    explode.play()
+                    times += 1
+                    det_cnt += 1
+                if powerup and sprite.collide_rect(barry, missile):
+                    powerup = False
+                    koin_got = True
+                    reset(barry.rect.x, barry.rect.y)
 
             for elektrik in Elektrik_list:
                 if elektrik.l == 0:
@@ -697,13 +747,26 @@ try:
                 elektrik.l = 0
                 Elektrik_list.append(elektrik)
 
-            elif lnch == 35 or lnch == 45 or lnch == 55:
+            elif lnch == 126 or lnch == 173 or lnch == 111:
+                missile.l = 0
+
+            elif lnch == 222 or lnch == 109 or lnch == 63:
+                missile2.l = 0
+
+            elif lnch == 35 or lnch == 17 or lnch == 39:
+                missile3.l = 0
+
+            elif lnch == 1 or lnch == 44 or lnch == 22:
+                missile4.l = 0
+
+            elif lnch == 1:
                 for missile in missiles:
                     missile.l = 0
 
             for bullet in bullets:
                 if sprite.collide_rect(bullet, floor):
                     bullets.remove(bullet)
+
 
 
         elif stage == "lost":
@@ -714,9 +777,9 @@ try:
 
             screen.fill((100, 0, 0))
             screen.blit(lost, (440, 330))
-            update_()
+            update_(60)
 
-        update_()
+        update_(60)
 
 except:
     raise
