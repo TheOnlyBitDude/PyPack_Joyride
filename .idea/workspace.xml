@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fbdf0043-f787-4c18-8552-50bc8119119d" name="Changes" comment="Updated PyPack_Joyride.&#10;Added Sound and Missiles.&#10;Added Temp lost screen.&#10;Added Temp hitbox outline.&#10;Added main theme.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PyPack_Joyride_V1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyPack_Joyride_V1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
