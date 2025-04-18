@@ -21,7 +21,7 @@ try:
 
     fps = 60
 
-    screen = display.set_mode((screen_width, screen_height))
+    screen = display.set_mode((screen_width, screen_height), NOFRAME)
     display.set_caption("PyPack Joyride")
     mixer.set_num_channels(300000)
 
@@ -46,7 +46,11 @@ try:
 
         def reset(self):
             screen.blit(self.image, (self.rect.x, self.rect.y))
-            draw.rect(screen, (255, 0, 0), Rect(self.rect.x, self.rect.y, self.rect.w, self.rect.h), 2)
+            global hitboxes
+            if hitboxes:
+                draw.rect(screen, (255, 0, 0), Rect(self.rect.x, self.rect.y, self.rect.w, self.rect.h), 2)
+            else:
+                pass
 
 
     class Barry(GameSprite):
@@ -100,7 +104,9 @@ try:
                 self.t += 1
                 if self.t == 2:
                     bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                    bullet2 = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
                     bullets.append(bullet)
+                    bullets.append(bullet2)
                     self.t = 0
                     for bullet in bullets:
                         bullet.shoot()
@@ -194,6 +200,85 @@ try:
 
             if self.wait == 35:
                 if self.i != 120:
+                    self.rect.x -= self.speed
+                    self.i += 1
+                else:
+                    self.i = 0
+                    self.wait = 0
+                    self.pre_launch = False
+                    self.launched = 1
+
+                if self.f != 1:
+                    self.f = 1
+
+                self.rect.y = self.pos
+                self.animate()
+            else:
+                self.wait += 1
+
+
+    class MissileWave(GameSprite):
+
+        def __init__(self, filename, x, y, w, h):
+            super().__init__(filename, x, y, w, h)
+            self.speed = 50
+            self.counter = 0
+            self.pre_launch = None
+            self.launched = None
+            self.f = None
+            self.wait = None
+            self.fall = 0
+            self.orientation = "negative"
+
+        def animate(self):
+
+            if 0 <= self.counter < 2:
+                self.image = transform.scale(image.load('img/Rocket1.png'), (self.w, self.h))
+            elif 5 <= self.counter < 4:
+                self.image = transform.scale(image.load('img/Rocket2.png'), (self.w, self.h))
+            elif 10 <= self.counter < 6:
+                self.image = transform.scale(image.load('img/Rocket3.png'), (self.w, self.h))
+            elif 15 <= self.counter < 8:
+                self.image = transform.scale(image.load('img/Rocket4.png'), (self.w, self.h))
+
+            self.counter += 1
+            if self.counter >= 8:
+                self.counter = 0
+
+        def warning(self):
+            if not self.pre_launch:
+                warning.play()
+                self.pos = randint(20, 714)
+                self.launched = 0
+                self.rect.y = self.pos
+            self.launch()
+
+        def launch(self):
+
+            if not self.pre_launch:
+                self.i = 0
+                self.rect.x = 2424
+                self.pre_launch = True
+                self.wait = 0
+                self.f = 0
+
+            if self.wait == 34:
+                Launch.play()
+
+            if self.wait == 35:
+                if self.i != 120:
+                    self.pos -= self.fall
+                    if self.fall >= 10:
+                        self.orientation = "negative"
+                    elif self.fall <= -10:
+                        self.orientation = "positive"
+                        self.fall += 0.5001
+
+                    if self.orientation == "positive":
+                        self.fall += 0.5
+                    elif self.orientation == "negative":
+                        self.fall -= 0.5
+
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -350,9 +435,33 @@ try:
         Elektrik_list.clear()
         if koin_got:
             for _ in range(10):
+                if bg.rect.x == -2740:
+                    bg.rect.x = 2740
+                elif bg_rvrs.rect.x == -2740:
+                    bg_rvrs.rect.x = 2740
+                if floor.rect.x == -2740:
+                    floor.rect.x = 2740
+                elif floor_rvrs.rect.x == -2740:
+                    floor_rvrs.rect.x = 2740
+                bg.reset()
+                bg.go()
+                bg_rvrs.reset()
+                bg_rvrs.go()
+                floor.reset()
+                floor.go()
+                floor_rvrs.reset()
+                floor_rvrs.go()
+
+                floor.reset()
+                roof.reset()
+                barry.animate()
+                barry.reset()
+                barry.move()
+
                 expl.explode()
             loop = 0
             koin_got = False
+            explode.set_volume(0.85)
 
 
 
@@ -543,6 +652,7 @@ try:
     text("snd/jetpack_fire", 525, 360)
     jetpack_fire = mixer.Sound("snd/jetpack_fire.wav")
     jetpack_channel = mixer.Channel(10)
+    jetpack_fire.set_volume(0.75)
     Game = True
     m = 0
     a = 0
@@ -577,6 +687,7 @@ try:
     text("img/Rocket3.png", 525, 360)
     missile4 = Missile(target, -99999, 0, 93, 34)
     text("img/Rocket4.png", 525, 360)
+    missile5 = MissileWave(target, -99999, 0, 93, 34)
 
     text("img/bg.jpg", 525, 360)
     bg = BG("img/bg.jpg", 0, 0, 2740, 1000)
@@ -587,7 +698,7 @@ try:
     text("img/floor_rvrs.png", 525, 360)
     floor_rvrs = BG("img/floor_rvrs.png", 2740, 718, 2740, 50)
 
-    missiles = [missile1, missile2, missile3, missile4]
+    missiles = [missile1, missile2, missile3, missile4, missile5]
 
     text("img/bullet.png", 525, 360)
     bullet = Bullets("img/Bullet.png", 500, 450, 10, 45)
@@ -602,14 +713,16 @@ try:
 
     expl = Explode("img/Explosions/Explosion1.png", 0, 0, 2400, 768)
 
-    sounds = [Elektric, Explode, jetpack_fire, Launch, smash, Theme, warning]
-
+    sounds = [Elektric, explode, jetpack_fire, Launch, smash, Theme, warning]
+    hitboxes = False
+    args = sys.argv[1:]
     try:
-        if sys.argv[1] == "--no-sounds":
-            for sound in sounds:
-                sound.set_volume(0)
-        else:
-            pass
+        for arg in args:
+            if arg == "--no-sounds":
+                for sound in sounds:
+                    sound.set_volume(0)
+            elif arg == "--hitboxes":
+                hitboxes = True
     except IndexError:
         pass
 
@@ -627,8 +740,10 @@ try:
                 stage = "run"
             elif e.type == KEYDOWN and e.key == K_p:
                 powerup = True
+                print("Gave powerup")
             elif e.type == KEYDOWN and e.key == K_r:
                 booster.l = 1
+                print("Boosted")
             elif e.type == KEYDOWN and e.key == K_e:
                 koin_got = True
                 reset(barry.rect.x, barry.rect.y)
@@ -720,6 +835,8 @@ try:
                 if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
                     powerup = False
                     koin_got = True
+                    explode.set_volume(1)
+                    explode.play()
                     reset(barry.rect.x, barry.rect.y)
 
             for elektrik in Elektrik_list:
@@ -749,25 +866,30 @@ try:
                 elektrik.l = 0
                 Elektrik_list.append(elektrik)
 
-            elif lnch == 126 or lnch == 173 or lnch == 111:
+            elif lnch == 126 or lnch == 173 or lnch == 111 and missile1 != 0:
                 missile1.launched = 0
                 print("Missile launched")
 
-            elif lnch == 222 or lnch == 109 or lnch == 63:
+            elif lnch == 222 or lnch == 109 or lnch == 63 and missile2 != 0:
                 missile2.launched = 0
                 print("Missile2 launched")
 
-            elif lnch == 35 or lnch == 17 or lnch == 39:
+            elif lnch == 35 or lnch == 17 or lnch == 39 and missile3 != 0:
                 missile3.launched = 0
                 print("Missile3 launched")
 
-            elif lnch == 1 or lnch == 44 or lnch == 22:
+            elif lnch == 2 or lnch == 44 or lnch == 22 and missile4 != 0:
                 missile4.launched = 0
                 print("Missile4 launched")
+
+            elif lnch == 134 or lnch == 127 or lnch == 159 and missile5 != 0:
+                missile5.launched = 0
+                print("Missile5 launched")
 
             elif lnch == 1:
                 for missile in missiles:
                     missile.launched = 0
+                print("All missiles launched")
 
             for bullet in bullets:
                 if sprite.collide_rect(bullet, floor):
