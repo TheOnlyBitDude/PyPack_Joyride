@@ -1,5 +1,4 @@
 try:
-
     from random import randint
     from pygame import *
     from time import sleep
@@ -199,7 +198,7 @@ try:
                 Launch.play()
 
             if self.wait == 35:
-                if self.i != 120:
+                if self.i != 52:
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -266,7 +265,7 @@ try:
                 Launch.play()
 
             if self.wait == 35:
-                if self.i != 120:
+                if self.i != 52:
                     self.pos -= self.fall
                     if self.fall >= 10:
                         self.orientation = "negative"
@@ -340,7 +339,7 @@ try:
                 self.f = 0
 
             if self.wait == 35:
-                if self.i != 120:
+                if self.i != 52:
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -464,20 +463,6 @@ try:
             explode.set_volume(0.85)
 
 
-
-    # load essential files
-    MS_DOS = font.Font("fnt/ModernDOS9x16.ttf", 100)
-    MS_DOS_smol = font.Font("fnt/ModernDOS9x16.ttf", 25)
-
-
-    def text(txt, x, y):
-        screen.fill((0, 0, 0))
-        screen.blit(loading, (430, 0))
-        screen.blit(tmtaw, (475, 720))
-        text_surface = MS_DOS_smol.render(txt, True, (255, 255, 255))
-        screen.blit(text_surface, (x, y))
-        update_()
-
     class Explode(GameSprite):
         def __init__(self, filename, x, y, w, h):
 
@@ -511,6 +496,21 @@ try:
             update_()
             if self.counter >= 10:
                 self.counter = 0
+
+
+
+    # load essential files
+    MS_DOS = font.Font("fnt/ModernDOS9x16.ttf", 100)
+    MS_DOS_smol = font.Font("fnt/ModernDOS9x16.ttf", 25)
+
+
+    def text(txt, x, y):
+        screen.fill((0, 0, 0))
+        screen.blit(loading, (430, 0))
+        screen.blit(tmtaw, (475, 720))
+        text_surface = MS_DOS_smol.render(txt, True, (255, 255, 255))
+        screen.blit(text_surface, (x, y))
+        update_()
 
 
     lost = MS_DOS.render("YOU LOST.", True, (0, 0, 0), None)
@@ -688,6 +688,7 @@ try:
     missile4 = Missile(target, -99999, 0, 93, 34)
     text("img/Rocket4.png", 525, 360)
     missile5 = MissileWave(target, -99999, 0, 93, 34)
+    missile6 = MissileWave(target, -99999, 0, 93, 34)
 
     text("img/bg.jpg", 525, 360)
     bg = BG("img/bg.jpg", 0, 0, 2740, 1000)
@@ -698,7 +699,7 @@ try:
     text("img/floor_rvrs.png", 525, 360)
     floor_rvrs = BG("img/floor_rvrs.png", 2740, 718, 2740, 50)
 
-    missiles = [missile1, missile2, missile3, missile4, missile5]
+    missiles = [missile1, missile2, missile3, missile4, missile5, missile6]
 
     text("img/bullet.png", 525, 360)
     bullet = Bullets("img/Bullet.png", 500, 450, 10, 45)
@@ -715,6 +716,7 @@ try:
 
     sounds = [Elektric, explode, jetpack_fire, Launch, smash, Theme, warning]
     hitboxes = False
+    death_screen = True
     args = sys.argv[1:]
     try:
         for arg in args:
@@ -723,6 +725,8 @@ try:
                     sound.set_volume(0)
             elif arg == "--hitboxes":
                 hitboxes = True
+            elif arg == "--no-death-screen":
+                death_screen = False
     except IndexError:
         pass
 
@@ -778,7 +782,7 @@ try:
 
             for bullet in bullets:
                 bullet.reset()
-                bullet.rect.y += 25
+                bullet.rect.y += 35
 
             koin_rand = randint(1, 1500)
             booster_rand = randint(1, 1500 )
@@ -886,13 +890,17 @@ try:
                 missile5.launched = 0
                 print("Missile5 launched")
 
+            elif lnch == 241 or lnch == 149 or lnch == 197 and missile6 != 0:
+                missile6.launched = 0
+                print("Missile6 launched")
+
             elif lnch == 1:
                 for missile in missiles:
                     missile.launched = 0
                 print("All missiles launched")
 
             for bullet in bullets:
-                if sprite.collide_rect(bullet, floor):
+                if sprite.collide_rect(bullet, floor) or sprite.collide_rect(bullet, floor_rvrs) or bullet.rect.y > 768:
                     bullets.remove(bullet)
 
 
@@ -902,9 +910,9 @@ try:
                 if e.type == QUIT:
                     exit()
 
-
-            screen.fill((100, 0, 0))
-            screen.blit(lost, (440, 330))
+            if death_screen:
+                screen.fill((100, 0, 0))
+                screen.blit(lost, (440, 330))
             update_()
 
         update_()
