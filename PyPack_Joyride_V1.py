@@ -108,7 +108,7 @@ try:
                 self.kind = "fly"
                 self.rect.y -= self.fall
                 self.fall += 0.75
-                if sprite.collide_rect(self, floor):
+                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
                     self.fall = 4
                 if not jetpack_channel.get_busy():
                     jetpack_channel.play(jetpack_fire, loops=-1)
@@ -127,11 +127,11 @@ try:
             if not keys[K_SPACE]:
                 self.fall -= 0.75
                 self.rect.y -= self.fall
-                if sprite.collide_rect(self, floor):
+                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
                     self.fall = 0
                     self.rect.y = 645
                     self.kind = "run"
-                elif not sprite.collide_rect(self, floor):
+                elif not sprite.collide_rect(self, floor) or not sprite.collide_rect(self, floor_rvrs):
                     self.kind = "fall"
                 if sprite.collide_rect(self, roof):
                     self.rect.y = 1
@@ -193,7 +193,7 @@ try:
                 Launch.play()
 
             if self.wait == 35:
-                if self.i != 100:
+                if self.i != 120:
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -255,7 +255,7 @@ try:
                 self.f = 0
 
             if self.wait == 35:
-                if self.i != 100:
+                if self.i != 120:
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -295,7 +295,7 @@ try:
         def place(self):
             self.rect.x -= 22
 
-            if self.rect.x <= -150:
+            if self.rect.x <= -283:
                 Elektrik_list.remove(self)
 
 
@@ -566,28 +566,28 @@ try:
     koin = Koin("img/Koin.png", screen_width, 470, 80, 80)
     text("img/booster.png", 525, 360)
     booster = Koin("img/booster.png", screen_width, 470, 110, 110)
-    text("img/Floor.png", 525, 360)
-    floor = GameSprite("img/floor.png", 0, 718, screen_width, 50)
     text("img/Roof.png", 525, 360)
     roof = GameSprite("img/roof.png", 0, -40, screen_width, 40)
     text("img/Missile_Target.png", 525, 360)
-    missile = MissileTracer(target, 0, 0, 93, 34)
+    missile1 = MissileTracer(target, -99999, 0, 93, 34)
     text("img/Rocket1.png", 525, 360)
-    missile2 = Missile(target, 0, 0, 93, 34)
+    missile2 = Missile(target, -99999, 0, 93, 34)
     text("img/Rocket2.png", 525, 360)
-    missile3 = Missile(target, 0, 0, 93, 34)
+    missile3 = Missile(target, -99999, 0, 93, 34)
     text("img/Rocket3.png", 525, 360)
-    missile4 = Missile(target, 0, 0, 93, 34)
+    missile4 = Missile(target, -99999, 0, 93, 34)
     text("img/Rocket4.png", 525, 360)
 
     text("img/bg.jpg", 525, 360)
     bg = BG("img/bg.jpg", 0, 0, 2740, 1000)
     text("img/bg_rvrs.jpg", 525, 360)
     bg_rvrs = BG("img/bg_rvrs.jpg", 2740, 0, 2740, 1000)
+    text("img/floor", 525, 360)
+    floor = BG("img/floor.png", 0, 718, 2740, 50)
+    text("img/floor_rvrs.png", 525, 360)
+    floor_rvrs = BG("img/floor_rvrs.png", 2740, 718, 2740, 50)
 
-    bgs = [bg, bg_rvrs]
-
-    missiles = [missile, missile2, missile3, missile4]
+    missiles = [missile1, missile2, missile3, missile4]
 
     text("img/bullet.png", 525, 360)
     bullet = Bullets("img/Bullet.png", 500, 450, 10, 45)
@@ -633,6 +633,8 @@ try:
                 koin_got = True
                 reset(barry.rect.x, barry.rect.y)
 
+        barry.move()
+
         if stage == "run":
             if m == 0:
                 m = 1
@@ -641,15 +643,22 @@ try:
                 bg.rect.x = 2740
             elif bg_rvrs.rect.x == -2740:
                 bg_rvrs.rect.x = 2740
+            if floor.rect.x == -2740:
+                floor.rect.x = 2740
+            elif floor_rvrs.rect.x == -2740:
+                floor_rvrs.rect.x = 2740
             bg.reset()
             bg.go()
             bg_rvrs.reset()
             bg_rvrs.go()
+            floor.reset()
+            floor.go()
+            floor_rvrs.reset()
+            floor_rvrs.go()
 
             floor.reset()
             roof.reset()
             barry.animate()
-            barry.move()
             barry.reset()
 
             for bullet in bullets:
@@ -701,12 +710,14 @@ try:
                 if missile.launched == 0:
                     missile.warning()
                     missile.reset()
-                if not powerup and sprite.collide_rect(barry, missile):
+                if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
                     stage = "lost"
                     explode.play()
                     times += 1
                     det_cnt += 1
-                if powerup and sprite.collide_rect(barry, missile):
+                    print("Barry:", barry.rect)
+                    print("Missile:", missile.rect)
+                if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
                     powerup = False
                     koin_got = True
                     reset(barry.rect.x, barry.rect.y)
@@ -739,16 +750,20 @@ try:
                 Elektrik_list.append(elektrik)
 
             elif lnch == 126 or lnch == 173 or lnch == 111:
-                missile.launched = 0
+                missile1.launched = 0
+                print("Missile launched")
 
             elif lnch == 222 or lnch == 109 or lnch == 63:
                 missile2.launched = 0
+                print("Missile2 launched")
 
             elif lnch == 35 or lnch == 17 or lnch == 39:
                 missile3.launched = 0
+                print("Missile3 launched")
 
             elif lnch == 1 or lnch == 44 or lnch == 22:
                 missile4.launched = 0
+                print("Missile4 launched")
 
             elif lnch == 1:
                 for missile in missiles:
@@ -766,8 +781,8 @@ try:
                     exit()
 
 
-            #screen.fill((100, 0, 0))
-            #screen.blit(lost, (440, 330))
+            screen.fill((100, 0, 0))
+            screen.blit(lost, (440, 330))
             update_()
 
         update_()
