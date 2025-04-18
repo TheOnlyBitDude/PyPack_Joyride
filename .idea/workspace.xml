@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fbdf0043-f787-4c18-8552-50bc8119119d" name="Changes" comment="Updated PyPack_Joyride.&#10;Added Sound and Missiles.&#10;Added Temp lost screen.&#10;Added Temp hitbox outline.&#10;Added main theme.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PyPack_Joyride_V1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyPack_Joyride_V1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/floor.png" beforeDir="false" afterPath="$PROJECT_DIR$/img/floor.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/floor_rvrs.png" beforeDir="false" afterPath="$PROJECT_DIR$/img/floor_rvrs.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/snd/Elektrik.wav" beforeDir="false" afterPath="$PROJECT_DIR$/snd/Elektrik.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/snd/jetpack_fire.wav" beforeDir="false" afterPath="$PROJECT_DIR$/snd/jetpack_fire.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/snd/smash.wav" beforeDir="false" afterPath="$PROJECT_DIR$/snd/smash.wav" afterDir="false" />
-    </list>
+    <list default="true" id="fbdf0043-f787-4c18-8552-50bc8119119d" name="Changes" comment="Updated PyPack_Joyride.&#10;Added Sound and Missiles.&#10;Added Temp lost screen.&#10;Added Temp hitbox outline.&#10;Added main theme." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
