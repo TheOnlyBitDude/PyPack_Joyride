@@ -144,18 +144,20 @@ try:
 
     class BG(GameSprite):
 
-        def __init__(self, filename, x, y, w, h):
+        def __init__(self, filename, x, y, w, h, speed):
             super().__init__(filename, x, y, w, h)
+            self.speed = speed
 
         def go(self):
-            self.rect.x -= 20
+            self.rect.x -= self.speed
 
 
     class Missile(GameSprite):
 
-        def __init__(self, filename, x, y, w, h):
+        def __init__(self, filename, x, y, w, h, speed, duration):
             super().__init__(filename, x, y, w, h)
-            self.speed = 50
+            self.duration = duration
+            self.speed = speed
             self.counter = 0
             self.pre_launch = None
             self.launched = None
@@ -198,7 +200,7 @@ try:
                 Launch.play()
 
             if self.wait == 35:
-                if self.i != 52:
+                if self.i != self.duration:
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -218,9 +220,10 @@ try:
 
     class MissileWave(GameSprite):
 
-        def __init__(self, filename, x, y, w, h):
+        def __init__(self, filename, x, y, w, h, speed, duration):
             super().__init__(filename, x, y, w, h)
-            self.speed = 50
+            self.duration = duration
+            self.speed = speed
             self.counter = 0
             self.pre_launch = None
             self.launched = None
@@ -265,7 +268,7 @@ try:
                 Launch.play()
 
             if self.wait == 35:
-                if self.i != 52:
+                if self.i != self.duration:
                     self.pos -= self.fall
                     if self.fall >= 10:
                         self.orientation = "negative"
@@ -298,9 +301,10 @@ try:
 
     class MissileTracer(GameSprite):
 
-        def __init__(self, filename, x, y, w, h):
+        def __init__(self, filename, x, y, w, h, speed, duration):
             super().__init__(filename, x, y, w, h)
-            self.speed = 50
+            self.duration = duration
+            self.speed = speed
             self.counter = 0
             self.pre_launch = None
             self.launched = None
@@ -339,7 +343,7 @@ try:
                 self.f = 0
 
             if self.wait == 35:
-                if self.i != 52:
+                if self.i != self.duration:
                     self.rect.x -= self.speed
                     self.i += 1
                 else:
@@ -371,13 +375,14 @@ try:
 
 
     class Elektrik(GameSprite):
-        def __init__(self, filename, x, y, w, h):
+        def __init__(self, filename, x, y, w, h, speed):
             super().__init__(filename, x, y, w, h)
+            self.speed = speed
             self.rect.x = 2484
             self.rect.y = randint(21, 718)
 
         def place(self):
-            self.rect.x -= 22
+            self.rect.x -= self.speed
 
             if self.rect.x <= -283:
                 Elektrik_list.remove(self)
@@ -679,25 +684,26 @@ try:
     text("img/Roof.png", 525, 360)
     roof = GameSprite("img/roof.png", 0, -40, screen_width, 40)
     text("img/Missile_Target.png", 525, 360)
-    missile1 = MissileTracer(target, -99999, 0, 93, 34)
+    missile1 = MissileTracer(target, -99999, 0, 93, 34, 15, 190)
     text("img/Rocket1.png", 525, 360)
-    missile2 = Missile(target, -99999, 0, 93, 34)
+    missile2 = Missile(target, -99999, 0, 93, 34, 15, 190)
     text("img/Rocket2.png", 525, 360)
-    missile3 = Missile(target, -99999, 0, 93, 34)
+    missile3 = Missile(target, -99999, 0, 93, 34, 15, 190)
     text("img/Rocket3.png", 525, 360)
-    missile4 = Missile(target, -99999, 0, 93, 34)
+    missile4 = Missile(target, -99999, 0, 93, 34, 15, 190)
     text("img/Rocket4.png", 525, 360)
-    missile5 = MissileWave(target, -99999, 0, 93, 34)
-    missile6 = MissileWave(target, -99999, 0, 93, 34)
+    missile5 = MissileWave(target, -99999, 0, 93, 34, 15, 190)
+    missile6 = MissileWave(target, -99999, 0, 93, 34, 15, 190)
 
     text("img/bg.jpg", 525, 360)
-    bg = BG("img/bg.jpg", 0, 0, 2740, 1000)
+    bg = BG("img/bg.jpg", 0, 0, 2740, 1000, 10)
     text("img/bg_rvrs.jpg", 525, 360)
-    bg_rvrs = BG("img/bg_rvrs.jpg", 2740, 0, 2740, 1000)
+    bg_rvrs = BG("img/bg_rvrs.jpg", 2740, 0, 2740, 1000, 10)
     text("img/floor", 525, 360)
-    floor = BG("img/floor.png", 0, 718, 2740, 50)
+    floor = BG("img/floor.png", 0, 718, 2740, 50, 10)
     text("img/floor_rvrs.png", 525, 360)
-    floor_rvrs = BG("img/floor_rvrs.png", 2740, 718, 2740, 50)
+    floor_rvrs = BG("img/floor_rvrs.png", 2740, 718, 2740, 50, 10)
+    bgs = [bg, bg_rvrs, floor, floor_rvrs]
 
     missiles = [missile1, missile2, missile3, missile4, missile5, missile6]
 
@@ -717,6 +723,9 @@ try:
     sounds = [Elektric, explode, jetpack_fire, Launch, smash, Theme, warning]
     hitboxes = False
     death_screen = True
+    el_speed = 10
+    for _ in bgs:
+        _.speed = 10
     args = sys.argv[1:]
     try:
         for arg in args:
@@ -727,6 +736,14 @@ try:
                 hitboxes = True
             elif arg == "--no-death-screen":
                 death_screen = False
+            elif arg == "--speed-up":
+                el_speed = 20
+                for _ in bgs:
+                    _.speed = 20
+                for missile in missiles:
+                    missile.speed = 50
+                    missile.duration = 52
+
     except IndexError:
         pass
 
@@ -861,12 +878,12 @@ try:
                         reset(barry.rect.x, barry.rect.y)
 
             if lnch == 70 or lnch == 80 or lnch == 90:
-                elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68)
+                elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68, el_speed)
                 elektrik.l = 0
                 Elektrik_list.append(elektrik)
 
             elif lnch == 10 or lnch == 20 or lnch == 30:
-                elektrik = Elektrik("img/elektrik_vert.png", 1376, 0, 68, 282)
+                elektrik = Elektrik("img/elektrik_vert.png", 1376, 0, 68, 282, el_speed)
                 elektrik.l = 0
                 Elektrik_list.append(elektrik)
 
@@ -902,8 +919,6 @@ try:
             for bullet in bullets:
                 if sprite.collide_rect(bullet, floor) or sprite.collide_rect(bullet, floor_rvrs) or bullet.rect.y > 768:
                     bullets.remove(bullet)
-
-
 
         elif stage == "lost":
             for e in event.get():
