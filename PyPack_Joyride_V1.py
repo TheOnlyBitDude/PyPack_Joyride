@@ -1,7 +1,6 @@
 try:
     from random import randint
     from pygame import *
-    from time import sleep
     import os
     import shutil
     import sys
@@ -26,9 +25,6 @@ try:
 
 
     def update_():
-        for e in event.get():
-            if e.type == QUIT:
-                exit()
         clock.tick(fps)
         display.update()
 
@@ -99,7 +95,7 @@ try:
 
         def move(self):
             keys = key.get_pressed()
-            if keys[K_SPACE]:
+            if keys[K_SPACE] and stage == "run":
                 self.t += 1
                 if self.t == 2:
                     bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
@@ -115,6 +111,7 @@ try:
                 self.fall += 0.75
                 if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
                     self.fall = 4
+
                 if not jetpack_channel.get_busy():
                     jetpack_channel.play(jetpack_fire, loops=-1)
             else:
@@ -584,13 +581,11 @@ try:
         screen.fill((0, 0, 0))
         screen.blit(fact, (40, 350))
         update_()
-        sleep(3)
         fac = False
     elif notfac:
         screen.fill((0, 0, 0))
         screen.blit(notfact, (150, 350))
         update_()
-        sleep(3)
         notfac = False
 
 
@@ -694,6 +689,7 @@ try:
     text("img/Rocket4.png", 525, 360)
     missile5 = MissileWave(target, -99999, 0, 93, 34, 15, 190)
     missile6 = MissileWave(target, -99999, 0, 93, 34, 15, 190)
+    missile7 = MissileWave(target, -99999, 0, 93, 34, 15, 190)
 
     text("img/bg.jpg", 525, 360)
     bg = BG("img/bg.jpg", 0, 0, 2740, 1000, 10)
@@ -705,7 +701,7 @@ try:
     floor_rvrs = BG("img/floor_rvrs.png", 2740, 718, 2740, 50, 10)
     bgs = [bg, bg_rvrs, floor, floor_rvrs]
 
-    missiles = [missile1, missile2, missile3, missile4, missile5, missile6]
+    missiles = [missile1, missile2, missile3, missile4, missile5, missile6, missile7]
 
     text("img/bullet.png", 525, 360)
     bullet = Bullets("img/Bullet.png", 500, 450, 10, 45)
@@ -723,6 +719,7 @@ try:
     sounds = [Elektric, explode, jetpack_fire, Launch, smash, Theme, warning]
     hitboxes = False
     death_screen = True
+    collision = True
     el_speed = 10
     for _ in bgs:
         _.speed = 10
@@ -734,6 +731,8 @@ try:
                     sound.set_volume(0)
             elif arg == "--hitboxes":
                 hitboxes = True
+            elif arg == "--no-collision":
+                collision = False
             elif arg == "--no-death-screen":
                 death_screen = False
             elif arg == "--speed-up":
@@ -753,25 +752,22 @@ try:
         else:
             channel.play(Theme)
 
-        for e in event.get():
-            if e.type == QUIT:
-                exit()
-            elif stage == "lost" and e.type == MOUSEBUTTONDOWN and e.button == 1:
-                reset(20, 675)
-                stage = "run"
-            elif e.type == KEYDOWN and e.key == K_p:
+        if stage == "run":
+            for e in event.get():
+                if e.type == QUIT:
+                    exit()
+
+            keys = key.get_pressed()
+            if keys[K_p]:
                 powerup = True
                 print("Gave powerup")
-            elif e.type == KEYDOWN and e.key == K_r:
-                booster.l = 1
-                print("Boosted")
-            elif e.type == KEYDOWN and e.key == K_e:
+            elif keys[K_e]:
                 koin_got = True
                 reset(barry.rect.x, barry.rect.y)
+            elif keys[K_r]:
+                booster.l = 1
+                print("Boosted")
 
-        barry.move()
-
-        if stage == "run":
             if m == 0:
                 m = 1
             screen.fill((100, 100, 100))
@@ -795,6 +791,7 @@ try:
             floor.reset()
             roof.reset()
             barry.animate()
+            barry.move()
             barry.reset()
 
             for bullet in bullets:
@@ -838,6 +835,11 @@ try:
                     except FileExistsError:
                         pass
 
+            elif booster.l == 0:
+                booster.rect.x = 2484
+                booster.rect.y = 460
+                booster.fall = 0
+
             if booster_rand == 1500:
                 booster.l = 1
 
@@ -846,36 +848,38 @@ try:
                 if missile.launched == 0:
                     missile.warning()
                     missile.reset()
-                if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
-                    stage = "lost"
-                    explode.play()
-                    times += 1
-                    det_cnt += 1
-                    print("Barry:", barry.rect)
-                    print("Missile:", missile.rect)
-                if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
-                    powerup = False
-                    koin_got = True
-                    explode.set_volume(1)
-                    explode.play()
-                    reset(barry.rect.x, barry.rect.y)
+                if collision:
+                    if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
+                        stage = "lost"
+                        explode.play()
+                        times += 1
+                        det_cnt += 1
+                        print("Barry:", barry.rect)
+                        print("Missile:", missile.rect)
+                    if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
+                        powerup = False
+                        koin_got = True
+                        explode.set_volume(1)
+                        explode.play()
+                        reset(barry.rect.x, barry.rect.y)
 
             for elektrik in Elektrik_list:
                 if elektrik.l == 0:
                     elektrik.reset()
                     elektrik.place()
-                    if not powerup and sprite.collide_rect(barry, elektrik):
-                        stage = "lost"
-                        Elektric.play()
-                        times += 1
-                        det_cnt += 1
-                    if powerup and sprite.collide_rect(barry, elektrik):
-                        powerup = False
-                        try:
-                            Elektrik_list.remove(elektrik)
-                        except:
-                            pass
-                        reset(barry.rect.x, barry.rect.y)
+                    if collision:
+                        if not powerup and sprite.collide_rect(barry, elektrik):
+                            stage = "lost"
+                            Elektric.play()
+                            times += 1
+                            det_cnt += 1
+                        if powerup and sprite.collide_rect(barry, elektrik):
+                            powerup = False
+                            try:
+                                Elektrik_list.remove(elektrik)
+                            except:
+                                pass
+                            reset(barry.rect.x, barry.rect.y)
 
             if lnch == 70 or lnch == 80 or lnch == 90:
                 elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68, el_speed)
@@ -887,29 +891,33 @@ try:
                 elektrik.l = 0
                 Elektrik_list.append(elektrik)
 
-            elif lnch == 126 or lnch == 173 or lnch == 111 and missile1 != 0:
+            elif lnch == 126 or lnch == 173 or lnch == 111 and missile1.launched != 0:
                 missile1.launched = 0
                 print("Missile launched")
 
-            elif lnch == 222 or lnch == 109 or lnch == 63 and missile2 != 0:
+            elif lnch == 222 or lnch == 109 or lnch == 63 and missile2.launched != 0:
                 missile2.launched = 0
                 print("Missile2 launched")
 
-            elif lnch == 35 or lnch == 17 or lnch == 39 and missile3 != 0:
+            elif lnch == 35 or lnch == 17 or lnch == 39 and missile3.launched != 0:
                 missile3.launched = 0
                 print("Missile3 launched")
 
-            elif lnch == 2 or lnch == 44 or lnch == 22 and missile4 != 0:
+            elif lnch == 2 or lnch == 44 or lnch == 22 and missile4.launched != 0:
                 missile4.launched = 0
                 print("Missile4 launched")
 
-            elif lnch == 134 or lnch == 127 or lnch == 159 and missile5 != 0:
+            elif lnch == 134 or lnch == 127 or lnch == 159 and missile5.launched != 0:
                 missile5.launched = 0
                 print("Missile5 launched")
 
-            elif lnch == 241 or lnch == 149 or lnch == 197 and missile6 != 0:
+            elif lnch == 241 or lnch == 149 or lnch == 197 and missile6.launched != 0:
                 missile6.launched = 0
                 print("Missile6 launched")
+
+            elif lnch == 250 or lnch == 110 or lnch == 180 and missile7.launched != 0:
+                missile7.launched = 0
+                print("Missile7 launched")
 
             elif lnch == 1:
                 for missile in missiles:
@@ -924,10 +932,16 @@ try:
             for e in event.get():
                 if e.type == QUIT:
                     exit()
+                elif e.type == MOUSEBUTTONDOWN and e.button == 1:
+                    reset(20, 675)
+                    stage = "run"
 
             if death_screen:
                 screen.fill((100, 0, 0))
                 screen.blit(lost, (440, 330))
+
+            jetpack_channel.stop()
+
             update_()
 
         update_()
