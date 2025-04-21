@@ -287,7 +287,6 @@ try:
                     self.launched = 1
 
                 if self.f != 1:
-
                     self.f = 1
 
                 self.rect.y = self.pos
@@ -413,6 +412,8 @@ try:
 
     loop = 0
     koin_got = False
+
+
     def reset(x, y):
         global loop, koin_got
         barry.rect.x = x
@@ -498,7 +499,6 @@ try:
             update_()
             if self.counter >= 10:
                 self.counter = 0
-
 
 
     # load essential files
@@ -588,7 +588,6 @@ try:
         update_()
         notfac = False
 
-
     # Load assets and variables
 
     death1 = False
@@ -607,7 +606,6 @@ try:
     screen.blit(loading, (430, 0))
     screen.blit(tmtaw, (475, 720))
     update_()
-
 
     text("data/", 525, 360)
 
@@ -633,7 +631,6 @@ try:
             elif file.find("koin") != -1:
                 koin = True
 
-
     text("snd/Elektrik.wav", 525, 360)
     Elektric = mixer.Sound("snd/Elektrik.wav")
     text("snd/Explode.wav", 525, 360)
@@ -656,8 +653,6 @@ try:
     Game = True
     m = 0
     a = 0
-
-
 
     text("img/Fly1.png", 525, 360)
     text("img/Fly2.png", 525, 360)
@@ -799,7 +794,7 @@ try:
                 bullet.rect.y += 35
 
             koin_rand = randint(1, 1500)
-            booster_rand = randint(1, 1500 )
+            booster_rand = randint(1, 1500)
 
             if koin_rand == 500 and not powerup:
                 koin.l = 1
