@@ -807,9 +807,6 @@ try:
                 koin_got = True
                 for barry in barry_list:
                     reset(barry.rect.y)
-            elif keys[K_r]:
-                booster.l = 1
-                print("Boosted")
 
             if m == 0:
                 m = 1
