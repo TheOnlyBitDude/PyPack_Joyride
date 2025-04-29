@@ -50,12 +50,13 @@ try:
 
     class Barry(GameSprite):
 
-        def __init__(self, filename, x, y, w, h):
+        def __init__(self, filename, x, y, w, h, players):
             super().__init__(filename, x, y, w, h)
             self.t = 0
             self.fall = 0
             self.counter = 0
             self.kind = "run"
+            self.players = players
 
         def animate(self):
             self.counter += 1
@@ -95,7 +96,23 @@ try:
 
         def move(self):
             keys = key.get_pressed()
-            if keys[K_SPACE] and stage == "run":
+            if keys[K_SPACE] and stage == "run" and self.players == "Mono":
+                self.t += 1
+                if self.t == 2:
+                    bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                    bullet2 = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                    bullets.append(bullet)
+                    bullets.append(bullet2)
+                    self.t = 0
+                    for bullet in bullets:
+                        bullet.shoot()
+
+                self.kind = "fly"
+                self.rect.y -= self.fall
+                self.fall += 0.75
+                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                    self.fall = 4
+            elif keys[K_UP] and self.players == "Dual":
                 self.t += 1
                 if self.t == 2:
                     bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
@@ -112,6 +129,7 @@ try:
                 if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
                     self.fall = 4
 
+            if keys[K_SPACE] and self.players == "Mono" or keys[K_UP] and self.players == "Dual":
                 if not jetpack_channel.get_busy():
                     jetpack_channel.play(jetpack_fire, loops=-1)
             else:
@@ -126,7 +144,7 @@ try:
                 self.rect.y = 0
                 self.fall = 0
 
-            if not keys[K_SPACE]:
+            if not keys[K_SPACE] and self.players == "Mono":
                 self.fall -= 0.75
                 self.rect.y -= self.fall
                 if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
@@ -137,6 +155,18 @@ try:
                     self.kind = "fall"
                 if sprite.collide_rect(self, roof):
                     self.rect.y = 1
+            elif not keys[K_UP] and self.players == "Dual":
+                self.fall -= 0.75
+                self.rect.y -= self.fall
+                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                    self.fall = 0
+                    self.rect.y = 645
+                    self.kind = "run"
+                elif not sprite.collide_rect(self, floor) or not sprite.collide_rect(self, floor_rvrs):
+                    self.kind = "fall"
+                if sprite.collide_rect(self, roof):
+                    self.rect.y = 1
+
 
 
     class BG(GameSprite):
@@ -297,7 +327,7 @@ try:
 
     class MissileTracer(GameSprite):
 
-        def __init__(self, filename, x, y, w, h, speed, duration):
+        def __init__(self, filename, x, y, w, h, speed, duration, type):
             super().__init__(filename, x, y, w, h)
             self.duration = duration
             self.speed = speed
@@ -306,6 +336,7 @@ try:
             self.launched = None
             self.f = None
             self.wait = None
+            self.type = type
 
         def animate(self):
 
@@ -325,7 +356,10 @@ try:
         def warning(self):
             if not self.pre_launch:
                 warning.play()
-                self.rect.y = barry.rect.y
+                if self.type == "Mono":
+                    self.rect.y = barry1.rect.y
+                else:
+                    self.rect.y = barry2.rect.y
                 self.launched = 0
             self.launch()
 
@@ -414,12 +448,12 @@ try:
     koin_got = False
 
 
-    def reset(x, y):
+    def reset(y):
         global loop, koin_got
-        barry.rect.x = x
-        barry.rect.y = y
-        barry.fall = 0
-        barry.kind = "run"
+        for barry in barry_list:
+            barry.rect.y = y
+            barry.fall = 0
+            barry.kind = "run"
 
         bullet.rect.y = 1001
 
@@ -456,9 +490,10 @@ try:
 
                 floor.reset()
                 roof.reset()
-                barry.animate()
-                barry.reset()
-                barry.move()
+                for barry in barry_list:
+                    barry.animate()
+                    barry.reset()
+                    barry.move()
 
                 expl.explode()
             loop = 0
@@ -663,7 +698,7 @@ try:
     text("img/Walk2.png", 525, 360)
     text("img/Walk3.png", 525, 360)
     text("img/Walk4.png", 525, 360)
-    barry = Barry("img/Walk1.png", 20, 675, 64, 74)
+    barry1 = Barry("img/Walk1.png", 20, 675, 64, 74, "Mono")
 
     text('img/Missile_target.png', 525, 360)
     target = 'img/Missile_Target.png'
@@ -674,7 +709,7 @@ try:
     text("img/Roof.png", 525, 360)
     roof = GameSprite("img/roof.png", 0, -40, screen_width, 40)
     text("img/Missile_Target.png", 525, 360)
-    missile1 = MissileTracer(target, -99999, 0, 93, 34, 15, 190)
+    missile1 = MissileTracer(target, -99999, 0, 93, 34, 15, 190, "Mono")
     text("img/Rocket1.png", 525, 360)
     missile2 = Missile(target, -99999, 0, 93, 34, 15, 190)
     text("img/Rocket2.png", 525, 360)
@@ -719,6 +754,10 @@ try:
     for _ in bgs:
         _.speed = 10
     args = sys.argv[1:]
+
+    barry_list = [barry1]
+    fast = False
+    dual = False
     try:
         for arg in args:
             if arg == "--no-sounds":
@@ -730,16 +769,24 @@ try:
                 collision = False
             elif arg == "--no-death-screen":
                 death_screen = False
+            elif arg == "--two-players":
+                barry2 = Barry("img/Walk2.png", 90, 675, 64, 74, "Dual")
+                barry_list.append(barry2)
+                missile8 = MissileTracer(target, -99999, 0, 93, 34, 15, 190, "dual")
+                missiles.append(missile8)
+                dual = True
             elif arg == "--speed-up":
-                el_speed = 20
-                for _ in bgs:
-                    _.speed = 20
-                for missile in missiles:
-                    missile.speed = 50
-                    missile.duration = 52
-
+                fast = True
     except IndexError:
         pass
+
+    if fast:
+        el_speed = 20
+        for _ in bgs:
+            _.speed = 20
+        for missile in missiles:
+            missile.speed = 50
+            missile.duration = 52
 
     while Game:
         if channel.get_busy():
@@ -758,7 +805,8 @@ try:
                 print("Gave powerup")
             elif keys[K_e]:
                 koin_got = True
-                reset(barry.rect.x, barry.rect.y)
+                for barry in barry_list:
+                    reset(barry.rect.y)
             elif keys[K_r]:
                 booster.l = 1
                 print("Boosted")
@@ -785,9 +833,10 @@ try:
 
             floor.reset()
             roof.reset()
-            barry.animate()
-            barry.move()
-            barry.reset()
+            for barry in barry_list:
+                barry.animate()
+                barry.move()
+                barry.reset()
 
             for bullet in bullets:
                 bullet.reset()
@@ -802,15 +851,16 @@ try:
             if koin.l == 1:
                 koin.reset()
                 koin.float(10)
-                if sprite.collide_rect(barry, koin):
-                    powerup = True
-                    smash.play()
-                    koin.l = 0
-                    try:
-                        open("data/koin", "x")
-                        ez_koin = True
-                    except FileExistsError:
-                        pass
+                for barry in barry_list:
+                    if sprite.collide_rect(barry, koin):
+                        powerup = True
+                        smash.play()
+                        koin.l = 0
+                        try:
+                            open("data/koin", "x")
+                            ez_koin = True
+                        except FileExistsError:
+                            pass
 
             elif koin.l == 0:
                 koin.rect.x = 2484
@@ -820,15 +870,16 @@ try:
             if booster.l == 1:
                 booster.reset()
                 booster.float(20)
-                if sprite.collide_rect(barry, booster):
-                    powerup = True
-                    smash.play()
-                    booster.l = 0
-                    try:
-                        open("data/booster", "x")
-                        ez_koin = True
-                    except FileExistsError:
-                        pass
+                for barry in barry_list:
+                    if sprite.collide_rect(barry, booster):
+                        powerup = True
+                        smash.play()
+                        booster.l = 0
+                        try:
+                            open("data/booster", "x")
+                            ez_koin = True
+                        except FileExistsError:
+                            pass
 
             elif booster.l == 0:
                 booster.rect.x = 2484
@@ -844,37 +895,37 @@ try:
                     missile.warning()
                     missile.reset()
                 if collision:
-                    if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
-                        stage = "lost"
-                        explode.play()
-                        times += 1
-                        det_cnt += 1
-                        print("Barry:", barry.rect)
-                        print("Missile:", missile.rect)
-                    if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
-                        powerup = False
-                        koin_got = True
-                        explode.set_volume(1)
-                        explode.play()
-                        reset(barry.rect.x, barry.rect.y)
+                    for barry in barry_list:
+                        if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
+                            stage = "lost"
+                            explode.play()
+                            det_cnt += 1
+                            print("Barry:", barry.rect)
+                            print("Missile:", missile.rect)
+                        if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
+                            powerup = False
+                            koin_got = True
+                            explode.set_volume(1)
+                            explode.play()
+                            reset(barry.rect.y)
 
             for elektrik in Elektrik_list:
                 if elektrik.l == 0:
                     elektrik.reset()
                     elektrik.place()
                     if collision:
-                        if not powerup and sprite.collide_rect(barry, elektrik):
-                            stage = "lost"
-                            Elektric.play()
-                            times += 1
-                            det_cnt += 1
-                        if powerup and sprite.collide_rect(barry, elektrik):
-                            powerup = False
-                            try:
-                                Elektrik_list.remove(elektrik)
-                            except:
-                                pass
-                            reset(barry.rect.x, barry.rect.y)
+                        for barry in barry_list:
+                            if not powerup and sprite.collide_rect(barry, elektrik):
+                                stage = "lost"
+                                Elektric.play()
+                                det_cnt += 1
+                            if powerup and sprite.collide_rect(barry, elektrik):
+                                powerup = False
+                                try:
+                                    Elektrik_list.remove(elektrik)
+                                except ValueError:
+                                    pass
+                                reset(barry.rect.y)
 
             if lnch == 70 or lnch == 80 or lnch == 90:
                 elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68, el_speed)
@@ -914,6 +965,11 @@ try:
                 missile7.launched = 0
                 print("Missile7 launched")
 
+            elif dual:
+                if lnch == 236 or lnch == 152 or lnch == 162 and missile8.launched != 0:
+                    missile8.launched = 0
+                    print("Missile8 launched")
+
             elif lnch == 1:
                 for missile in missiles:
                     missile.launched = 0
@@ -928,7 +984,7 @@ try:
                 if e.type == QUIT:
                     exit()
                 elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    reset(20, 675)
+                    reset(675)
                     stage = "run"
 
             if death_screen:
@@ -941,5 +997,8 @@ try:
 
         update_()
 
-except:
-    raise
+    print(missiles[8])
+
+except Exception as e:
+    print("An error occurred:", e)
+    exit(1)
