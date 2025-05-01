@@ -1,5 +1,7 @@
 Arguments:\
 --no-sounds   =    No sounds.\
 --hitboxes     =    Hitboxes on.\
+--no-collision = No death.\
 --no-death-screen = No death screen.\
---speed-up    =     Speed everything up.
+--two-players = Two Players + 1 rocket\
+--speed-up    =     Speed everything up.\
