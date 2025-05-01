@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fbdf0043-f787-4c18-8552-50bc8119119d" name="Changes" comment="Updated PyPack_Joyride.&#10;Added Sound and Missiles.&#10;Added Temp lost screen.&#10;Added Temp hitbox outline.&#10;Added main theme.">
-      <change afterPath="$PROJECT_DIR$/ideas" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyPack_Joyride_V1.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyPack_Joyride_V1.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +91,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\New\PycharmProjects\git\PyPack_Joyride\PyPack_Joyride_V1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PyPack_Joyride_V1.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />

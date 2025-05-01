@@ -50,13 +50,16 @@ try:
 
     class Barry(GameSprite):
 
-        def __init__(self, filename, x, y, w, h, players):
+        def __init__(self, filename, x, y, w, h, players, dead):
             super().__init__(filename, x, y, w, h)
+            self.lost = False
+            self.times = 0
             self.t = 0
             self.fall = 0
             self.counter = 0
             self.kind = "run"
             self.players = players
+            self.dead = dead
 
         def animate(self):
             self.counter += 1
@@ -91,81 +94,129 @@ try:
             elif self.kind == "fall":
                 self.image = transform.scale(image.load('img/Walk1.png'), (self.w, self.h))
 
+            elif self.kind == "dead":
+                self.image = transform.scale(image.load('img/BarryDead.png'), (self.w*1.5, self.h))
+
             if self.counter > 40:
                 self.counter = 0
 
         def move(self):
-            keys = key.get_pressed()
-            if keys[K_SPACE] and stage == "run" and self.players == "Mono":
-                self.t += 1
-                if self.t == 2:
-                    bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
-                    bullet2 = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
-                    bullets.append(bullet)
-                    bullets.append(bullet2)
-                    self.t = 0
-                    for bullet in bullets:
-                        bullet.shoot()
+            global stage
+            if not self.dead:
+                keys = key.get_pressed()
+                if keys[K_SPACE] and stage == "run" and self.players == "Mono":
+                    self.t += 1
+                    if self.t == 2:
+                        bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                        bullet2 = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                        bullets.append(bullet)
+                        bullets.append(bullet2)
+                        self.t = 0
+                        for bullet in bullets:
+                            bullet.shoot()
 
-                self.kind = "fly"
-                self.rect.y -= self.fall
-                self.fall += 0.75
-                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
-                    self.fall = 4
-            elif keys[K_UP] and self.players == "Dual":
-                self.t += 1
-                if self.t == 2:
-                    bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
-                    bullet2 = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
-                    bullets.append(bullet)
-                    bullets.append(bullet2)
-                    self.t = 0
-                    for bullet in bullets:
-                        bullet.shoot()
+                    self.kind = "fly"
+                    self.rect.y -= self.fall
+                    self.fall += 0.75
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 4
+                elif keys[K_UP] and self.players == "Dual":
+                    self.t += 1
+                    if self.t == 2:
+                        bullet = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                        bullet2 = Bullets("img/Bullet.png", self.rect.x, self.rect.y + self.h, 10, 45)
+                        bullets.append(bullet)
+                        bullets.append(bullet2)
+                        self.t = 0
+                        for bullet in bullets:
+                            bullet.shoot()
 
-                self.kind = "fly"
-                self.rect.y -= self.fall
-                self.fall += 0.75
-                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
-                    self.fall = 4
+                    self.kind = "fly"
+                    self.rect.y -= self.fall
+                    self.fall += 0.75
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 4
 
-            if keys[K_SPACE] and self.players == "Mono" or keys[K_UP] and self.players == "Dual":
-                if not jetpack_channel.get_busy():
-                    jetpack_channel.play(jetpack_fire, loops=-1)
+                if keys[K_SPACE] and self.players == "Mono" or keys[K_UP] and self.players == "Dual":
+                    if not jetpack_channel.get_busy():
+                        jetpack_channel.play(jetpack_fire, loops=-1)
+                else:
+                    jetpack_channel.stop()
+
+                if self.fall >= 10:
+                    self.fall = 10
+                elif self.fall <= -20:
+                    self.fall = -20
+
+                if sprite.collide_rect(self, roof):
+                    self.rect.y = 0
+                    self.fall = 0
+
+                if not keys[K_SPACE] and self.players == "Mono":
+                    self.fall -= 0.75
+                    self.rect.y -= self.fall
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 0
+                        self.rect.y = 645
+                        self.kind = "run"
+                    elif not sprite.collide_rect(self, floor) or not sprite.collide_rect(self, floor_rvrs):
+                        self.kind = "fall"
+                    if sprite.collide_rect(self, roof):
+                        self.rect.y = 1
+                elif not keys[K_UP] and self.players == "Dual":
+                    self.fall -= 0.75
+                    self.rect.y -= self.fall
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 0
+                        self.rect.y = 645
+                        self.kind = "run"
+                    elif not sprite.collide_rect(self, floor) or not sprite.collide_rect(self, floor_rvrs):
+                        self.kind = "fall"
+                    if sprite.collide_rect(self, roof):
+                        self.rect.y = 1
+
             else:
                 jetpack_channel.stop()
-
-            if self.fall >= 10:
-                self.fall = 10
-            elif self.fall <= -20:
-                self.fall = -20
-
-            if sprite.collide_rect(self, roof):
-                self.rect.y = 0
-                self.fall = 0
-
-            if not keys[K_SPACE] and self.players == "Mono":
-                self.fall -= 0.75
-                self.rect.y -= self.fall
-                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
-                    self.fall = 0
+                if self.times == 0:
+                    self.fall -= 0.75
+                    self.rect.y -= self.fall
+                    if self.fall <= -16:
+                        self.fall = -16
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 20
+                        self.times = 1
+                elif self.times == 1:
+                    self.rect.y -= self.fall
+                    self.fall -= 0.75
+                    if self.fall <= -16:
+                        self.fall = -16
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 15
+                        self.rect.y = 645
+                        self.times = 2
+                elif self.times == 2:
+                    self.rect.y -= self.fall
+                    self.fall -= 0.75
+                    if self.fall <= -16:
+                        self.fall = -16
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 7
+                        self.rect.y = 645
+                        self.times = 3
+                elif self.times == 3:
+                    self.rect.y -= self.fall
+                    self.fall -= 0.75
+                    if self.fall <= -16:
+                        self.fall = -16
+                    if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
+                        self.fall = 0
+                        self.rect.y = 645
+                        self.times = 4
+                elif self.times == 4:
                     self.rect.y = 645
-                    self.kind = "run"
-                elif not sprite.collide_rect(self, floor) or not sprite.collide_rect(self, floor_rvrs):
-                    self.kind = "fall"
-                if sprite.collide_rect(self, roof):
-                    self.rect.y = 1
-            elif not keys[K_UP] and self.players == "Dual":
-                self.fall -= 0.75
-                self.rect.y -= self.fall
-                if sprite.collide_rect(self, floor) or sprite.collide_rect(self, floor_rvrs):
-                    self.fall = 0
-                    self.rect.y = 645
-                    self.kind = "run"
-                elif not sprite.collide_rect(self, floor) or not sprite.collide_rect(self, floor_rvrs):
-                    self.kind = "fall"
-                if sprite.collide_rect(self, roof):
-                    self.rect.y = 1
+                    self.lost = True
+
+                self.kind = "dead"
 
 
 
@@ -372,6 +423,9 @@ try:
                 self.wait = 0
                 self.f = 0
 
+            if self.wait == 34:
+                Launch.play()
+
             if self.wait == 35:
                 if self.i != self.duration:
                     self.rect.x -= self.speed
@@ -448,12 +502,25 @@ try:
     koin_got = False
 
 
-    def reset(y):
-        global loop, koin_got
+    def reset():
+        global loop, koin_got, stage
+        barry1.fall = 0
+        barry1.rect.x = 20
+        barry1.kind = "run"
+
+        if dual:
+            barry2.fall = 0
+            barry2.rect.x = 90
+            barry2.kind = "run"
+
         for barry in barry_list:
-            barry.rect.y = y
-            barry.fall = 0
-            barry.kind = "run"
+            if stage == "lost":
+                barry.dead = False
+                barry.times = 0
+                barry.lost = False
+
+        stage = "run"
+
 
         bullet.rect.y = 1001
 
@@ -657,13 +724,7 @@ try:
 
     for file in os.listdir(basepath + "/data"):
         if os.path.isfile(os.path.join(basepath + "/data", file)):
-            if file.find("death1") != -1:
-                death1 = True
-            elif file.find("death10") != -1:
-                death10 = True
-            elif file.find("death50") != -1:
-                death50 = True
-            elif file.find("koin") != -1:
+            if file.find("koin") != -1:
                 koin = True
 
     text("snd/Elektrik.wav", 525, 360)
@@ -698,7 +759,7 @@ try:
     text("img/Walk2.png", 525, 360)
     text("img/Walk3.png", 525, 360)
     text("img/Walk4.png", 525, 360)
-    barry1 = Barry("img/Walk1.png", 20, 675, 64, 74, "Mono")
+    barry1 = Barry("img/Walk1.png", 20, 675, 64, 74, "Mono", False)
 
     text('img/Missile_target.png', 525, 360)
     target = 'img/Missile_Target.png'
@@ -770,7 +831,7 @@ try:
             elif arg == "--no-death-screen":
                 death_screen = False
             elif arg == "--two-players":
-                barry2 = Barry("img/Walk2.png", 90, 675, 64, 74, "Dual")
+                barry2 = Barry("img/Walk2.png", 90, 675, 64, 74, "Dual", False)
                 barry_list.append(barry2)
                 missile8 = MissileTracer(target, -99999, 0, 93, 34, 15, 190, "dual")
                 missiles.append(missile8)
@@ -806,8 +867,28 @@ try:
             elif keys[K_e]:
                 koin_got = True
                 for barry in barry_list:
-                    reset(barry.rect.y)
+                    reset()
 
+            if dual:
+                if barry1.lost and barry2.lost:
+                    stage = "lost"
+                elif barry1.lost and not barry2.lost:
+                    if fast:
+                        barry1.rect.x -= 20
+                    else:
+                        barry1.rect.x -= 10
+                    if barry1.rect.x <= -120:
+                        barry1.rect.x = -120
+                elif barry2.lost and not barry1.lost:
+                    if fast:
+                        barry2.rect.x -= 20
+                    else:
+                        barry2.rect.x -= 10
+                    if barry2.rect.x <= -120:
+                        barry2.rect.x = -120
+            else:
+                if barry1.lost:
+                    stage = "lost"
             if m == 0:
                 m = 1
             screen.fill((100, 100, 100))
@@ -839,7 +920,7 @@ try:
                 bullet.reset()
                 bullet.rect.y += 35
 
-            koin_rand = randint(1, 1500)
+            koin_rand = randint(1, 1000)
             booster_rand = randint(1, 1500)
 
             if koin_rand == 500 and not powerup:
@@ -849,7 +930,7 @@ try:
                 koin.reset()
                 koin.float(10)
                 for barry in barry_list:
-                    if sprite.collide_rect(barry, koin):
+                    if sprite.collide_rect(barry, koin) and not barry.dead:
                         powerup = True
                         smash.play()
                         koin.l = 0
@@ -868,7 +949,7 @@ try:
                 booster.reset()
                 booster.float(20)
                 for barry in barry_list:
-                    if sprite.collide_rect(barry, booster):
+                    if sprite.collide_rect(barry, booster) and not barry.dead:
                         powerup = True
                         smash.play()
                         booster.l = 0
@@ -893,18 +974,18 @@ try:
                     missile.reset()
                 if collision:
                     for barry in barry_list:
-                        if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
-                            stage = "lost"
+                        if not powerup and missile.pre_launch and sprite.collide_rect(barry, missile) and not barry.dead:
                             explode.play()
                             det_cnt += 1
                             print("Barry:", barry.rect)
                             print("Missile:", missile.rect)
-                        if powerup and missile.pre_launch and sprite.collide_rect(barry, missile):
+                            barry.dead = True
+                        if powerup and missile.pre_launch and sprite.collide_rect(barry, missile) and not barry.dead:
                             powerup = False
                             koin_got = True
                             explode.set_volume(1)
                             explode.play()
-                            reset(barry.rect.y)
+                            reset()
 
             for elektrik in Elektrik_list:
                 if elektrik.l == 0:
@@ -912,17 +993,17 @@ try:
                     elektrik.place()
                     if collision:
                         for barry in barry_list:
-                            if not powerup and sprite.collide_rect(barry, elektrik):
-                                stage = "lost"
+                            if not powerup and sprite.collide_rect(barry, elektrik) and not barry.dead:
                                 Elektric.play()
                                 det_cnt += 1
-                            if powerup and sprite.collide_rect(barry, elektrik):
+                                barry.dead = True
+                            if powerup and sprite.collide_rect(barry, elektrik) and not barry.dead:
                                 powerup = False
                                 try:
                                     Elektrik_list.remove(elektrik)
                                 except ValueError:
                                     pass
-                                reset(barry.rect.y)
+                                reset()
 
             if lnch == 70 or lnch == 80 or lnch == 90:
                 elektrik = Elektrik("img/elektrik.png", 1376, 0, 282, 68, el_speed)
@@ -981,11 +1062,9 @@ try:
                 if e.type == QUIT:
                     exit()
                 elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    reset(675)
-                    stage = "run"
+                    reset()
 
             if death_screen:
-                screen.fill((100, 0, 0))
                 screen.blit(lost, (440, 330))
 
             jetpack_channel.stop()
@@ -993,8 +1072,6 @@ try:
             update_()
 
         update_()
-
-    print(missiles[8])
 
 except Exception as e:
     print("An error occurred:", e)
