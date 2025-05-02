@@ -21,6 +21,8 @@ try:
 
     screen = display.set_mode((screen_width, screen_height), NOFRAME)
     display.set_caption("PyPack Joyride")
+    logo = image.load('img/logo.png')
+    display.set_icon(logo)
     mixer.set_num_channels(300000)
 
 
